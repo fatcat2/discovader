@@ -1,0 +1,18 @@
+{
+  "name": "discord-vader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "expressjs": "^1.0.1",
+    "nodemon": "^2.0.3",
+    "vader-sentiment": "^1.1.3"
+  }
+}
