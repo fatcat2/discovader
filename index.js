@@ -21,12 +21,12 @@ client.on('message', message => {
     }
 
     let chance = Math.random();
-    let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
+    let toAnalyze = processIncomingMessage(message.content);
+
+    let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(toAnalyze);
     console.log(`chance: ${chance} score: ${intensity["compound"]}`);
 
     if(message.content.includes(client.user.id)){
-        let toAnalyze = message.content.substring(client.user.id.length+4).trim();
-        let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
         message.channel.send(`Analysis of "${toAnalyze}" sent by ${message.member.user}:\nPositive: ${intensity["pos"]}\nNeutral: ${intensity["neu"]}\nNegative: ${intensity["neg"]}\nComposite: ${intensity["compound"]}`);
         return;
     }
@@ -41,6 +41,13 @@ client.on('message', message => {
         }
     }
 });
+
+function processIncomingMessage(message){
+    if(message.includes(client.user.id)){
+        return message.substring(client.user.id.length+4).trim();
+    }
+    return message;
+}
 
 
 // express.js section
