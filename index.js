@@ -19,15 +19,24 @@ client.on('message', message => {
         console.log("bot-sent message");
         return;
     }
+
     let chance = Math.random();
     let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
     console.log(`chance: ${chance} score: ${intensity["compound"]}`);
 
+    if(message.content.includes(client.user.id)){
+        console.log(message.content)
+        let toAnalyze = message.content.substring(client.user.id.length+4).trim();
+        console.log(toAnalyze);
+        let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
+        message.channel.send(`Analysis of "${toAnalyze}" sent by ${message.member.user}:\nPositive: ${intensity["pos"]}\nNeutral: ${intensity["neu"]}\nNegative: ${intensity["neg"]}\nComposite: ${intensity["compound"]}`);
+        return;
+    }
 
-    if(chance > 0.5 && intensity["compound"] <= -0.05){
+    if(chance > 0.7 && intensity["compound"] <= -0.05){
         if(chance > 0.9){
             message.channel.send(`That's right onii-chan! ${message.member.user}`);            
-        }else if(chance > 0.7){
+        }else if(chance > 0.8){
             message.channel.send(`[ ${message.member.user} didn't like that ]`);
         }else{
             message.react("😠");
