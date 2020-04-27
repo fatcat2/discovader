@@ -25,9 +25,7 @@ client.on('message', message => {
     console.log(`chance: ${chance} score: ${intensity["compound"]}`);
 
     if(message.content.includes(client.user.id)){
-        console.log(message.content)
         let toAnalyze = message.content.substring(client.user.id.length+4).trim();
-        console.log(toAnalyze);
         let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(message.content);
         message.channel.send(`Analysis of "${toAnalyze}" sent by ${message.member.user}:\nPositive: ${intensity["pos"]}\nNeutral: ${intensity["neu"]}\nNegative: ${intensity["neg"]}\nComposite: ${intensity["compound"]}`);
         return;
