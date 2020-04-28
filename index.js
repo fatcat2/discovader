@@ -27,19 +27,15 @@ client.on('message', message => {
     console.log(`chance: ${chance} score: ${intensity["compound"]}`);
 
     if(message.content.includes(client.user.id)){
-        message.channel.send(`Analysis of "${toAnalyze}" sent by ${message.member.user}:\nPositive: ${intensity["pos"]}\nNeutral: ${intensity["neu"]}\nNegative: ${intensity["neg"]}\nComposite: ${intensity["compound"]}`);
+        if(toAnalyze == "explain"){
+            explain(message.channel);
+        }else{
+            reportVaderAnalysis(message, toAnalyze, intensity);
+        }
         return;
     }
 
-    if(chance > 0.7 && intensity["compound"] <= -0.05){
-        if(chance > 0.9){
-            message.channel.send(`That's right onii-chan! ${message.member.user}`);            
-        }else if(chance > 0.8){
-            message.channel.send(`[ ${message.member.user} didn't like that ]`);
-        }else{
-            message.react("😠");
-        }
-    }
+    processReply(message, chance, intensity["compound"]);
 });
 
 function processIncomingMessage(message){
@@ -49,6 +45,25 @@ function processIncomingMessage(message){
     return message;
 }
 
+function explain(messageChannel){
+    messageChannel.send(`${client.user} is a Discord bot that implements VADER sentiment analysis. It scans for negative messages as they come in and responds based on RNG and whether the message is truly negative according to its VADER compound score.`)
+}
+
+function reportVaderAnalysis(message, toAnalyze, results){
+    message.channel.send(`Analysis of "${toAnalyze}" sent by ${message.member.user}:\nPositive: ${results["pos"]}\nNeutral: ${results["neu"]}\nNegative: ${results["neg"]}\nComposite: ${results["compound"]}`);
+}
+
+function processReply(message, chance, compoundScore){
+    if(chance > 0.7 && compoundScore <= -0.05){
+        if(chance > 0.9){
+            message.channel.send(`That's right onii-chan! ${message.member.user}`);            
+        }else if(chance > 0.8){
+            message.channel.send(`[ ${message.member.user} didn't like that ]`);
+        }else{
+            message.react("😠");
+        }
+    }
+}
 
 // express.js section
 app.get("/", (req, res) => {
