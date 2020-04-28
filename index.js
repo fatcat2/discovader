@@ -1,18 +1,23 @@
 const vader = require('vader-sentiment');
-
 const Discord = require('discord.js');
 const express = require("express");
-const client = new Discord.Client();
-const app = express();
+var sqlite3 = require('sqlite3').verbose();
 
+require('dotenv').config()
+
+console.log(process.env);
+const db = new sqlite3.Database("/home/ryan/discord-vader/discovader.sqlite");
+const client = new Discord.Client();
+
+const app = express();
 const port = 3000
 
 
 client.once('ready', () => {
-	console.log('Ready!');
+	console.log('Discovader successfully logged in to Discord!');
 });
 
-client.login("NzA0MTE4MDE4MTI4NjA5NDEx.XqYjzg.wJC9iRGrfkiF_3e0arpgA2mqUN0");
+client.login(process.env.LOGIN_TOKEN);
 
 client.on('message', message => {
     if(message.member.id == client.user.id){
@@ -29,6 +34,8 @@ client.on('message', message => {
     if(message.content.includes(client.user.id)){
         if(toAnalyze == "explain"){
             explain(message.channel);
+        }else if(toAnalyze == "average"){
+            averageScoreReport(message.channel);
         }else{
             reportVaderAnalysis(message, toAnalyze, intensity);
         }
@@ -54,6 +61,7 @@ function reportVaderAnalysis(message, toAnalyze, results){
 }
 
 function processReply(message, chance, compoundScore){
+    db.run("INSERT INTO discovader VALUES (datetime('now'), ?)", compoundScore);
     if(chance > 0.7 && compoundScore <= -0.05){
         if(chance > 0.9){
             message.channel.send(`That's right onii-chan! ${message.member.user}`);            
@@ -63,6 +71,12 @@ function processReply(message, chance, compoundScore){
             message.react("😠");
         }
     }
+}
+
+function averageScoreReport(messageChannel){
+    db.get("SELECT AVG(score) as average FROM discovader", function(err, row){
+        messageChannel.send(`The average sentiment score is ${row.average}.`);
+    });
 }
 
 app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
