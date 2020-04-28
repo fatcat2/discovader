@@ -65,9 +65,4 @@ function processReply(message, chance, compoundScore){
     }
 }
 
-// express.js section
-app.get("/", (req, res) => {
-	res.send("your mom");
-});
-
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
