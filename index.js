@@ -5,7 +5,6 @@ var sqlite3 = require('sqlite3').verbose();
 
 require('dotenv').config()
 
-console.log(process.env);
 const db = new sqlite3.Database("/home/ryan/discord-vader/discovader.sqlite");
 const client = new Discord.Client();
 
@@ -31,16 +30,14 @@ client.on('message', message => {
     let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(toAnalyze);
     console.log(`chance: ${chance} score: ${intensity["compound"]}`);
 
-    console.log((message.content.split(" ")[0]));
-
     if(message.content.split(" ")[0].includes(client.user.id)){
         let args = message.content.split(" ");
         if(args[1] == "explain"){
             explain(message.channel);
         }else if(args[1] == "average"){
             averageScoreReport(message.channel);
-        }else if(args[1] == "stock"){
-            stockReport(message, args[2]);
+        }else if(args[1] == "call" && args.length == 3){
+            message.channel.send(`Ok ${message.member.user}! Calling ${args[2]} ...`)
         }else{
             reportVaderAnalysis(message, toAnalyze, intensity);
         }
@@ -86,30 +83,6 @@ function averageScoreReport(messageChannel){
         console.log(err);
         messageChannel.send(`The average sentiment over the past 24 hours is ${row.average}`);
     });
-}
-
-function stockReport(message, symbol){
-    let url = "https://api.worldtradingdata.com/api/v1/stock";
-
-    let params = {
-        "symbol": symbol,
-        "api_token": process.env.STOCK_TOKEN,
-    };
-
-    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-
-    fetch(url, {
-        method: "GET",
-    })
-        .then(response => {v
-            console.log(response);
-            if (response.symbols_returned == 1){
-                message.channel.send(`Hi ${message.member.user}! Current price for ${response.name} (${response.symbol}): $${response.price}`);
-            }else{
-                message.channel.send(`Nothing found for ${symbol}`);
-            }
-        })
-        .then(json => console.log(json));
 }
 
 app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
