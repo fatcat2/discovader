@@ -31,11 +31,16 @@ client.on('message', message => {
     let intensity = vader.SentimentIntensityAnalyzer.polarity_scores(toAnalyze);
     console.log(`chance: ${chance} score: ${intensity["compound"]}`);
 
-    if(message.content.includes(client.user.id)){
-        if(toAnalyze == "explain"){
+    console.log((message.content.split(" ")[0]));
+
+    if(message.content.split(" ")[0].includes(client.user.id)){
+        let args = message.content.split(" ");
+        if(args[1] == "explain"){
             explain(message.channel);
-        }else if(toAnalyze == "average"){
+        }else if(args[1] == "average"){
             averageScoreReport(message.channel);
+        }else if(args[1] == "stock"){
+            stockReport(message, args[2]);
         }else{
             reportVaderAnalysis(message, toAnalyze, intensity);
         }
@@ -62,10 +67,10 @@ function reportVaderAnalysis(message, toAnalyze, results){
 
 function processReply(message, chance, compoundScore){
     db.run("INSERT INTO discovader VALUES (datetime('now'), ?)", compoundScore);
-    if(chance > 0.7 && compoundScore <= -0.05){
-        if(chance > 0.9){
+    if(chance > 0.8 && compoundScore <= -0.05){
+        if(chance > 0.95){
             message.channel.send(`That's right onii-chan! ${message.member.user}`);            
-        }else if(chance > 0.8){
+        }else if(chance > 0.9){
             message.channel.send(`[ ${message.member.user} didn't like that ]`);
         }else{
             message.react("😠");
@@ -77,6 +82,34 @@ function averageScoreReport(messageChannel){
     db.get("SELECT AVG(score) as average FROM discovader", function(err, row){
         messageChannel.send(`The average sentiment score is ${row.average}.`);
     });
+    db.get("SELECT AVG(score) as average from discovader where timestamp >= date('now', '-1 days') and timestamp < date('now')", function(err, row){
+        console.log(err);
+        messageChannel.send(`The average sentiment over the past 24 hours is ${row.average}`);
+    });
+}
+
+function stockReport(message, symbol){
+    let url = "https://api.worldtradingdata.com/api/v1/stock";
+
+    let params = {
+        "symbol": symbol,
+        "api_token": process.env.STOCK_TOKEN,
+    };
+
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
+    fetch(url, {
+        method: "GET",
+    })
+        .then(response => {v
+            console.log(response);
+            if (response.symbols_returned == 1){
+                message.channel.send(`Hi ${message.member.user}! Current price for ${response.name} (${response.symbol}): $${response.price}`);
+            }else{
+                message.channel.send(`Nothing found for ${symbol}`);
+            }
+        })
+        .then(json => console.log(json));
 }
 
 app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
