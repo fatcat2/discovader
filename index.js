@@ -1,6 +1,7 @@
 const vader = require('vader-sentiment');
 const Discord = require('discord.js');
 const express = require("express");
+const axios = require('axios').default;
 var sqlite3 = require('sqlite3').verbose();
 
 require('dotenv').config()
@@ -38,6 +39,8 @@ client.on('message', message => {
             averageScoreReport(message.channel);
         }else if(args[1] == "average_day"){
             averageByDay(message);
+        }else if(args[1] == "stonks"){
+            stonks(args[2], message);
         }else if(args[1] == "call" && args.length == 3){
             message.channel.send(`Ok ${message.member.user}! Calling ${args[2]} ...`)
         }else{
@@ -66,6 +69,22 @@ function reportVaderAnalysis(message, toAnalyze, results){
 
 function processReply(message, chance, compoundScore){
     db.run("INSERT INTO discovader VALUES (datetime('now'), ?)", compoundScore);
+
+    if(message.member.nickname == "cbun"){
+        if(chance > 0.4 && compoundScore <= -0.05){
+            if(chance > 0.8){
+                message.channel.send(`Awwww ${message.member.user}, you'll be ok sister.`);            
+            }else if(chance > 0.7){
+                message.channel.send(`C'mon ${message.member.user}! Keep your head up girl!`);
+            }else if(chance > 0.6){
+                message.channel.send(`${message.member.user} You'll be ok hon :triumph:`);
+            }else{
+                message.react(":cry:");
+            }
+        }
+        return;
+    }
+
     if(chance > 0.8 && compoundScore <= -0.05){
         if(chance > 0.95){
             message.channel.send(`That's right onii-chan! ${message.member.user}`);            
@@ -105,6 +124,21 @@ function averageByDay(message){
         total_average_string += "```";
         message.channel.send(total_average_string);
     })
+}
+
+function stonks(symbol, message){
+    axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${process.env.STONKS}`)
+        .then((response) => {
+            console.log(response);
+            let current_price = response["data"]["c"];
+            let high_price = response.data.h;
+            let low_price = response.data.l;
+            let prev_close = response.data.pc;
+            message.channel.send(`Hey ${message.member.user}! Here's the current info for ${symbol}.\nPrice: ${current_price}\nHigh: ${high_price}\tLow: ${low_price}\nPrevious close: ${prev_close}`)
+        })
+        .catch((err) => {
+            message.channel.send(`Sorry ${message.member.user}, I couldn't find the symbol ${symbol}.`);
+        })
 }
 
 
