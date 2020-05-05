@@ -12,7 +12,7 @@ const app = express();
 const port = 3000
 
 console.log("Starting up ...");
-client.login("NzA1ODU1OTc0NDEzNTY1OTk0.Xqxxog.7QAwSV4ghKomK9Oo5UW41KAyYWc").then((token) => console.log(token));
+client.login(process.env.LOGIN_TOKEN).then((token) => console.log(token));
 
 
 client.once('ready', () => {
@@ -81,6 +81,8 @@ function processReply(message, chance, compoundScore){
             }else{
                 message.react(":cry:");
             }
+        }else if(chance > 0.4 && compoundScore >= 0.05){
+            message.channel.send(`OMG yaaassss 🤩 slay kweeeen 👑`);
         }
         return;
     }
