@@ -60,7 +60,7 @@ function processIncomingMessage(message){
 }
 
 function explain(messageChannel){
-    messageChannel.send(`${client.user} is a Discord bot that implements VADER sentiment analysis. It scans for negative messages as they come in and responds based on RNG and whether the message is truly negative according to its VADER compound score.\nCommands are explain, average, average_day.`)
+    messageChannel.send(`${client.user} is a Discord bot that implements VADER sentiment analysis. It scans for negative messages as they come in and responds based on RNG and whether the message is truly negative according to its VADER compound score.\nCommands are \`explain\`, \`average\`, \`call <number>\`, \`stonks <ticker symbol>\`, and \`average_day\`.`)
 }
 
 function reportVaderAnalysis(message, toAnalyze, results){
@@ -71,15 +71,13 @@ function processReply(message, chance, compoundScore){
     db.run("INSERT INTO discovader VALUES (datetime('now'), ?)", compoundScore);
 
     if(message.member.nickname == "cbun"){
-        if(chance > 0.4 && compoundScore <= -0.05){
+        if(chance > 0.33 && compoundScore <= -0.05){
             if(chance > 0.8){
                 message.channel.send(`Awwww ${message.member.user}, you'll be ok sister.`);            
-            }else if(chance > 0.7){
+            }else if(chance > 0.75){
                 message.channel.send(`C'mon ${message.member.user}! Keep your head up girl!`);
-            }else if(chance > 0.6){
-                message.channel.send(`${message.member.user} You'll be ok hon :triumph:`);
             }else{
-                message.react(":cry:");
+                message.channel.send(`${message.member.user} You'll be ok hon :triumph:`);
             }
         }else if(chance > 0.4 && compoundScore >= 0.05){
             message.channel.send(`OMG yaaassss 🤩 slay kweeeen 👑`);
