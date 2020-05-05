@@ -57,7 +57,7 @@ function processIncomingMessage(message){
 }
 
 function explain(messageChannel){
-    messageChannel.send(`${client.user} is a Discord bot that implements VADER sentiment analysis. It scans for negative messages as they come in and responds based on RNG and whether the message is truly negative according to its VADER compound score.`)
+    messageChannel.send(`${client.user} is a Discord bot that implements VADER sentiment analysis. It scans for negative messages as they come in and responds based on RNG and whether the message is truly negative according to its VADER compound score.\nCommands are explain, average, average_day.`)
 }
 
 function reportVaderAnalysis(message, toAnalyze, results){
@@ -89,11 +89,20 @@ function averageScoreReport(messageChannel){
 
 function averageByDay(message){
     db.all("select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from discovader group by strftime('%Y-%m-%d', timestamp)", function(err, rows){
-        let total_average_string = `Hi ${message.member.user}, here's my day by day average:\n`;
+        let total_average_string = `Hi ${message.member.user}, here's my day by day average:\n\`\`\``;
         rows.forEach(element => {
-            let formatted_score = (element.SCORE*100).toFixed(2) + '%';
+            let formatted_score = (element.SCORE).toFixed(5);
+            var sentiment = "";
+            if(element.score*100 > 5){
+                sentiment = "😁";
+            }else if(element.score*100 <= 5 && element.score*100 >= -5){
+                sentiment = "😐";
+            }else{
+                sentiment = "😢";
+            }
             total_average_string += `${element.DAY}: ${formatted_score}\n`;
         });
+        total_average_string += "```";
         message.channel.send(total_average_string);
     })
 }
