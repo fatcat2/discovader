@@ -39,7 +39,7 @@ client.on('message', message => {
             averageScoreReport(message.channel);
         }else if(args[1] == "average_day"){
             averageByDay(message);
-        }else if(args[1] == "stonks"){
+        }else if(args[1] == "stonks" && message.channel.name == "the-mahjong-den"){
             stonks(args[2], message);
         }else if(args[1] == "call" && args.length == 3){
             message.channel.send(`Ok ${message.member.user}! Calling ${args[2]} ...`)
