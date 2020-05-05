@@ -4,19 +4,19 @@ const express = require("express");
 var sqlite3 = require('sqlite3').verbose();
 
 require('dotenv').config()
-
-const db = new sqlite3.Database("/home/ryan/discord-vader/discovader.sqlite");
+const db = new sqlite3.Database(process.env.DATABASE);
 const client = new Discord.Client();
 
 const app = express();
 const port = 3000
 
+console.log("Starting up ...");
+client.login("NzA1ODU1OTc0NDEzNTY1OTk0.Xqxxog.7QAwSV4ghKomK9Oo5UW41KAyYWc").then((token) => console.log(token));
+
 
 client.once('ready', () => {
-	console.log('Discovader successfully logged in to Discord!');
+    console.log('Discovader successfully logged in to Discord!');
 });
-
-client.login(process.env.LOGIN_TOKEN);
 
 client.on('message', message => {
     if(message.member.id == client.user.id){
@@ -36,6 +36,8 @@ client.on('message', message => {
             explain(message.channel);
         }else if(args[1] == "average"){
             averageScoreReport(message.channel);
+        }else if(args[1] == "average_day"){
+            averageByDay(message);
         }else if(args[1] == "call" && args.length == 3){
             message.channel.send(`Ok ${message.member.user}! Calling ${args[2]} ...`)
         }else{
@@ -85,4 +87,16 @@ function averageScoreReport(messageChannel){
     });
 }
 
-app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
+function averageByDay(message){
+    db.all("select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from discovader group by strftime('%Y-%m-%d', timestamp)", function(err, rows){
+        let total_average_string = `Hi ${message.member.user}, here's my day by day average:\n`;
+        rows.forEach(element => {
+            let formatted_score = (element.SCORE*100).toFixed(2) + '%';
+            total_average_string += `${element.DAY}: ${formatted_score}\n`;
+        });
+        message.channel.send(total_average_string);
+    })
+}
+
+
+// app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
