@@ -3,13 +3,14 @@ const Discord = require('discord.js');
 const express = require("express");
 const axios = require('axios').default;
 var sqlite3 = require('sqlite3').verbose();
+var path = require('path');
 
 require('dotenv').config()
 const db = new sqlite3.Database(process.env.DATABASE);
 const client = new Discord.Client();
 
 const app = express();
-const port = 3000
+const port = 8888
 
 console.log("Starting up ...");
 client.login(process.env.LOGIN_TOKEN).then((token) => console.log(token));
@@ -39,7 +40,7 @@ client.on('message', message => {
             averageScoreReport(message.channel);
         }else if(args[1] == "average_day"){
             averageByDay(message);
-        }else if(args[1] == "stonks" && message.channel.name == "the-mahjong-den"){
+        }else if(args[1] == "stonks" && (message.channel.name == "the-mahjong-den" || message.channel.guild.name != "NCMEL")){
             stonks(args[2], message);
         }else if(args[1] == "call" && args.length == 3){
             message.channel.send(`Ok ${message.member.user}! Calling ${args[2]} ...`)
@@ -70,16 +71,18 @@ function reportVaderAnalysis(message, toAnalyze, results){
 function processReply(message, chance, compoundScore){
     db.run("INSERT INTO discovader VALUES (datetime('now'), ?)", compoundScore);
 
+    // This section is purely for cbun because cbun complains all the damn time 
+    // and I'm fucking sick of it.
     if(message.member.nickname == "cbun"){
-        if(chance > 0.33 && compoundScore <= -0.05){
-            if(chance > 0.8){
+        if(chance > 0.6 && compoundScore <= -0.05){
+            if(chance > 0.9){
                 message.channel.send(`Awwww ${message.member.user}, you'll be ok sister.`);            
-            }else if(chance > 0.75){
+            }else if(chance > 0.8){
                 message.channel.send(`C'mon ${message.member.user}! Keep your head up girl!`);
             }else{
                 message.channel.send(`${message.member.user} You'll be ok hon :triumph:`);
             }
-        }else if(chance > 0.4 && compoundScore >= 0.05){
+        }else if(chance > 0.6 && compoundScore >= 0.05){
             message.channel.send(`OMG yaaassss 🤩 slay kweeeen 👑`);
         }
         return;
@@ -140,6 +143,19 @@ function stonks(symbol, message){
             message.channel.send(`Sorry ${message.member.user}, I couldn't find the symbol ${symbol}.`);
         })
 }
+app.engine('pug', require('pug').__express)
+app.set("views", path.join(__dirname, "views"));
+app.set('view engine', 'pug')
+
+app.get('/', (req, res) => {
+    db.get("SELECT AVG(score) as average FROM discovader", function(err, row){
+        res.render('index', { average: row.average })
+    });
+})
+
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname + '/favicon.ico'));
+})
 
 
-// app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
+app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
