@@ -21,7 +21,6 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-    console.log(message.channel.guild.name);
     if(message.member.id == client.user.id){
         console.log("bot-sent message");
         return;
@@ -72,9 +71,9 @@ function reportVaderAnalysis(message, toAnalyze, results){
 function processReply(message, chance, compoundScore){
     db.serialize(function(){
         let formatted_guild_name = regex(message.channel.guild.name).replace(/\s+/g, '');
-        console.log(formatted_guild_name)
         db.run(`CREATE TABLE IF NOT EXISTS ${formatted_guild_name} (timestamp text, score real)`);
         db.run(`INSERT INTO ${formatted_guild_name} VALUES (datetime('now'), ?)`, compoundScore);
+        db.run(`INSERT INTO discovader VALUES (datetime('now'), ?)`, compoundScore);
     });
     // This section is purely for cbun because cbun complains all the damn time 
     // and I'm fucking sick of it.
@@ -139,7 +138,6 @@ function averageByDay(message){
 function stonks(symbol, message){
     axios.get(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${process.env.STONKS}`)
         .then((response) => {
-            console.log(response);
             let current_price = response["data"]["c"];
             let high_price = response.data.h;
             let low_price = response.data.l;
@@ -154,8 +152,6 @@ function stonks(symbol, message){
 function regex (str) {
     return str.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,"")
 }
-
-function newServer(){}
 
 app.engine('pug', require('pug').__express)
 app.set("views", path.join(__dirname, "views"));
