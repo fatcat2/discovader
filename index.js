@@ -21,6 +21,7 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
+    console.log(message.channel.guild.name);
     if(message.member.id == client.user.id){
         console.log("bot-sent message");
         return;
@@ -69,8 +70,12 @@ function reportVaderAnalysis(message, toAnalyze, results){
 }
 
 function processReply(message, chance, compoundScore){
-    db.run("INSERT INTO discovader VALUES (datetime('now'), ?)", compoundScore);
-
+    db.serialize(function(){
+        let formatted_guild_name = regex(message.channel.guild.name).replace(/\s+/g, '');
+        console.log(formatted_guild_name)
+        db.run(`CREATE TABLE IF NOT EXISTS ${formatted_guild_name} (timestamp text, score real)`);
+        db.run(`INSERT INTO ${formatted_guild_name} VALUES (datetime('now'), ?)`, compoundScore);
+    });
     // This section is purely for cbun because cbun complains all the damn time 
     // and I'm fucking sick of it.
     if(message.member.nickname == "cbun"){
@@ -100,18 +105,20 @@ function processReply(message, chance, compoundScore){
 }
 
 function averageScoreReport(messageChannel){
-    db.get("SELECT AVG(score) as average FROM discovader", function(err, row){
+    let formatted_guild_name = regex(message.channel.guild.name).replace(/\s+/g, '');
+    db.get(`SELECT AVG(score) as average FROM ${formatted_guild_name}`, function(err, row){
         messageChannel.send(`The average sentiment score is ${row.average}.`);
     });
-    db.get("SELECT AVG(score) as average from discovader where timestamp >= date('now', '-1 days') and timestamp < date('now')", function(err, row){
+    db.get(`SELECT AVG(score) as average from ${formatted_guild_name} where timestamp >= date('now', '-1 days') and timestamp < date('now')`, function(err, row){
         console.log(err);
         messageChannel.send(`The average sentiment over the past 24 hours is ${row.average}`);
     });
 }
 
 function averageByDay(message){
-    db.all("select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from discovader group by strftime('%Y-%m-%d', timestamp)", function(err, rows){
-        let total_average_string = `Hi ${message.member.user}, here's my day by day average:\n\`\`\``;
+    let formatted_guild_name = regex(message.channel.guild.name).replace(/\s+/g, '');
+    db.all(`select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from ${formatted_guild_name} group by strftime('%Y-%m-%d', timestamp)`, function(err, rows){
+        let total_average_string = `Hi ${message.member.user}, here's my day by day average for ${message.channel.guild.name}:\n\`\`\``;
         rows.forEach(element => {
             let formatted_score = (element.SCORE).toFixed(5);
             var sentiment = "";
@@ -143,6 +150,13 @@ function stonks(symbol, message){
             message.channel.send(`Sorry ${message.member.user}, I couldn't find the symbol ${symbol}.`);
         })
 }
+
+function regex (str) {
+    return str.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,"")
+}
+
+function newServer(){}
+
 app.engine('pug', require('pug').__express)
 app.set("views", path.join(__dirname, "views"));
 app.set('view engine', 'pug')
