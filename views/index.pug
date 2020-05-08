@@ -9,7 +9,8 @@ html
         div(class="row")
             div(class="col-sm")
                 div(class="jumbotron")
-                    h1 discovader stats
+                    h1 discovader
+                    p made by #[a(href="https://twitter.com/torrtle") torrtle].
         div(class="row")
             div(class="col-sm")
                 div(class="card")
@@ -17,7 +18,29 @@ html
                         h5(class="card-title") discovader stats
                         p(class="card-text").
                             The current average sentiment of my discord servers is #{average}
+        br
+        div(class="row")
+            div(class="col-sm")
+                div(class="card")
+                    div(class="card-body")
+                        h5(class="card-title") so what is discovader?
+                        p(class="card-text").
+                            Discovader is a Discord bot that implements #[a(href="https://github.com/cjhutto/vaderSentiment") VADER sentiment analysis]. It scans through messages in specified channels and analyzes the sentiment of each one by returning a score between -1 and 1. Depending on the sentiment of the message, it will either respond or react to the message with a sassy or supportive reply.
+        br
+        div(class="row")
+                div(class="col-sm")
+                    div(class="card")
+                        div(class="card-body")
+                            h5(class="card-title") what can discovader do?
+                            p(class="card-text").
+                                Besides randomly replying to messages, the following commands are implemented. Message syntax should be used like "@discovader [command] [args]"
+                                * explain: explains what Discovader does
+                                * stonks [symbol]: returns stock price for that symbol
+                                * [message]: returns the full VADER sentiment analysis for the text sentiment
+                                * average: returns the running total average sentiment kept in the database
+                                * average_day: returns the average sentiment by day
 
+                                Note: some of these commands require data to be stored. The only data being stored are timestamps and sentiment. No information regarding which user sent a message is kept.
   
   script(src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous")
   script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous")
