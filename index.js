@@ -37,7 +37,7 @@ client.on('message', message => {
         if(args[1] == "explain"){
             explain(message.channel);
         }else if(args[1] == "average"){
-            averageScoreReport(message.channel);
+            averageScoreReport(message);
         }else if(args[1] == "average_day"){
             averageByDay(message);
         }else if(args[1] == "stonks" && (message.channel.name == "the-mahjong-den" || message.channel.guild.name != "NCMEL")){
@@ -103,14 +103,14 @@ function processReply(message, chance, compoundScore){
     }
 }
 
-function averageScoreReport(messageChannel){
+function averageScoreReport(message){
     let formatted_guild_name = regex(message.channel.guild.name).replace(/\s+/g, '');
     db.get(`SELECT AVG(score) as average FROM ${formatted_guild_name}`, function(err, row){
-        messageChannel.send(`The average sentiment score is ${row.average}.`);
+        message.channel.send(`The average sentiment score is ${row.average}.`);
     });
     db.get(`SELECT AVG(score) as average from ${formatted_guild_name} where timestamp >= date('now', '-1 days') and timestamp < date('now')`, function(err, row){
         console.log(err);
-        messageChannel.send(`The average sentiment over the past 24 hours is ${row.average}`);
+        message.chance.send(`The average sentiment over the past 24 hours is ${row.average}`);
     });
 }
 
@@ -158,8 +158,11 @@ app.set("views", path.join(__dirname, "views"));
 app.set('view engine', 'pug')
 
 app.get('/', (req, res) => {
-    db.get("SELECT AVG(score) as average FROM discovader", function(err, row){
-        res.render('index', { average: row.average })
+    db.get("SELECT AVG(score) as average FROM discovader", function(err, avg_row){
+        db.all(`select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from discovader group by strftime('%Y-%m-%d', timestamp)`, function(err, rows){
+            res.render('index', { average: avg_row.average , daily_average: rows})
+
+        });
     });
 })
 

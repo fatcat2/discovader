@@ -5,6 +5,7 @@ html
   body
     br
     br
+    script.
     div(class="container")
         div(class="row")
             div(class="col-sm")
@@ -18,6 +19,26 @@ html
                         h5(class="card-title") discovader stats
                         p(class="card-text").
                             The current average sentiment of my discord servers is #{average}
+        
+        br
+
+        div(class="row")
+            div(class="col-sm")
+                div(class="card")
+                    div(class="card-body")
+                        h5(class="card-title") discovader stats
+                        table(class="table")
+                            thead
+                                tr
+                                    th(scope="col") DAY
+                                    th(scope="col") SCORE
+                            tbody
+                                each val in daily_average
+                                    tr
+                                        td=val.DAY
+                                        td=val.SCORE
+
+
         br
         div(class="row")
             div(class="col-sm")
