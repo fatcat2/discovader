@@ -34,6 +34,7 @@ client.on('message', message => {
 
     if(message.content.split(" ")[0].includes(client.user.id)){
         let args = message.content.split(" ");
+        args[1] = args[1].toLowerCase();
         if(args[1] == "explain"){
             explain(message.channel);
         }else if(args[1] == "average"){
@@ -159,7 +160,7 @@ app.set('view engine', 'pug')
 
 app.get('/', (req, res) => {
     db.get("SELECT AVG(score) as average FROM discovader", function(err, avg_row){
-        db.all(`select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from discovader group by strftime('%Y-%m-%d', timestamp)`, function(err, rows){
+        db.all(`select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from discovader group by strftime('%Y-%m-%d', timestamp) order by DAY`, function(err, rows){
             res.render('index', { average: avg_row.average , daily_average: rows})
 
         });
