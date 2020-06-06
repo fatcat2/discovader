@@ -5,6 +5,9 @@ const axios = require('axios').default;
 var sqlite3 = require('sqlite3').verbose();
 var path = require('path');
 
+var moment = require('moment'); // require
+moment().format();
+
 require('dotenv').config()
 const db = new sqlite3.Database(process.env.DATABASE);
 const client = new Discord.Client();
@@ -79,24 +82,18 @@ function processReply(message, chance, compoundScore){
     // This section is purely for cbun because cbun complains all the damn time 
     // and I'm fucking sick of it.
     if(message.member.nickname == "cbun"){
-        if(chance > 0.6 && compoundScore <= -0.05){
-            if(chance > 0.9){
-                message.channel.send(`Awwww ${message.member.user}, you'll be ok sister.`);            
-            }else if(chance > 0.8){
-                message.channel.send(`C'mon ${message.member.user}! Keep your head up girl!`);
-            }else{
-                message.channel.send(`${message.member.user} You'll be ok hon :triumph:`);
-            }
-        }else if(chance > 0.6 && compoundScore >= 0.05){
+        if(chance > 0.99 && compoundScore <= -0.05){
+            message.channel.send(`Awwww ${message.member.user}, you'll be ok sister.`);
+        }else if(chance > 0.99 && compoundScore >= 0.05){
             message.channel.send(`OMG yaaassss 🤩 slay kweeeen 👑`);
         }
         return;
     }
 
-    if(chance > 0.8 && compoundScore <= -0.05){
-        if(chance > 0.95){
+    if(chance > 0.9 && compoundScore <= -0.05){
+        if(chance > 0.975){
             message.channel.send(`That's right onii-chan! ${message.member.user}`);            
-        }else if(chance > 0.9){
+        }else if(chance > 0.95){
             message.channel.send(`[ ${message.member.user} didn't like that ]`);
         }else{
             message.react("😠");
@@ -111,7 +108,7 @@ function averageScoreReport(message){
     });
     db.get(`SELECT AVG(score) as average from ${formatted_guild_name} where timestamp >= date('now', '-1 days') and timestamp < date('now')`, function(err, row){
         console.log(err);
-        message.chance.send(`The average sentiment over the past 24 hours is ${row.average}`);
+        message.channel.send(`The average sentiment over the past 24 hours is ${row.average}`);
     });
 }
 
@@ -161,7 +158,12 @@ app.set('view engine', 'pug')
 app.get('/', (req, res) => {
     db.get("SELECT AVG(score) as average FROM discovader", function(err, avg_row){
         db.all(`select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE from discovader group by strftime('%Y-%m-%d', timestamp) order by DAY`, function(err, rows){
-            res.render('index', { average: avg_row.average , daily_average: rows})
+            let stringList = [];
+            for(value in rows){
+                console.log(value);
+                stringList.push({x: moment(rows[value].DAY).format("ll"), y: rows[value].SCORE})
+            }
+            res.render('index', { average: avg_row.average , daily_average: rows, stringData: JSON.stringify(stringList)})
 
         });
     });
