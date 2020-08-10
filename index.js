@@ -4,6 +4,7 @@ const express = require("express");
 const axios = require('axios').default;
 var sqlite3 = require('sqlite3').verbose();
 var path = require('path');
+const Markov = require('js-markov');
 
 var moment = require('moment'); // require
 moment().format();
@@ -14,6 +15,8 @@ const client = new Discord.Client();
 
 const app = express();
 const port = 8888
+
+const data  = require("./data")
 
 console.log("Starting up ...");
 client.login(process.env.LOGIN_TOKEN).then((token) => console.log(token));
@@ -27,6 +30,11 @@ client.on('message', message => {
     if(message.member.id == client.user.id){
         console.log("bot-sent message");
         return;
+    }
+
+    if(message.content == "!aita"){
+        axios.get('http://localhost:5000/aita')
+        .then((response) => {message.channel.send(response["data"])})
     }
 
     let chance = Math.random();
@@ -151,6 +159,13 @@ function regex (str) {
     return str.replace(/(~|`|!|@|#|$|%|^|&|\*|\(|\)|{|}|\[|\]|;|:|\"|'|<|,|\.|>|\?|\/|\\|\||-|_|\+|=)/g,"")
 }
 
+async function aita(){
+    return await axios.get("127.0.0.1:5000/aita").then(data => {
+        return data;
+    });
+    // return data.text.split("\n");
+}
+
 app.engine('pug', require('pug').__express)
 app.set("views", path.join(__dirname, "views"));
 app.set('view engine', 'pug')
@@ -171,6 +186,20 @@ app.get('/', (req, res) => {
 
 app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.join(__dirname + '/favicon.ico'));
+})
+
+app.get('/aita', (req, res) => {
+    axios.get('http://localhost:5000/aita')
+        .then((response) => {
+            db.run(`INSERT INTO AITA_QUOTES_BOT VALUES(datetime('now'), ?)`, [response["data"]], function(err) {
+                if (err) {
+                    return console.log(err.message);
+                }
+                console.log(`A row has been inserted with rowid ${this.lastID}`);
+            });
+            res.render("aita", {aita: response["data"]})
+        })
+        .catch((error) => {res.json(error)})
 })
 
 
