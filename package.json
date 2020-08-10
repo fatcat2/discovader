@@ -13,11 +13,14 @@
     "axios": "^0.19.2",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "expressjs": "^1.0.1",
+    "js-markov": "^3.0.3",
     "moment": "^2.26.0",
     "nodemon": "^2.0.3",
     "path": "^0.12.7",
     "pug": "^2.0.4",
+    "snoowrap": "^1.21.0",
     "sqlite3": "^4.2.0",
     "vader-sentiment": "^1.1.3"
   }
