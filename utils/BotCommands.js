@@ -23,16 +23,6 @@ function processReply(message, chance, compoundScore, db){
         db.run(`INSERT INTO ${formatted_guild_name} VALUES (datetime('now'), ?)`, compoundScore);
         db.run(`INSERT INTO discovader VALUES (datetime('now'), ?)`, compoundScore);
     });
-    // This section is purely for cbun because cbun complains all the damn time 
-    // and I'm fucking sick of it.
-    if(message.member.nickname == "cbun"){
-        if(chance > 0.99 && compoundScore <= -0.05){
-            message.channel.send(`Awwww ${message.member.user}, you'll be ok sister.`);
-        }else if(chance > 0.99 && compoundScore >= 0.05){
-            message.channel.send(`OMG yaaassss 🤩 slay kweeeen 👑`);
-        }
-        return;
-    }
 
     if(chance > 0.9 && compoundScore <= -0.05){
         if(chance > 0.975){
