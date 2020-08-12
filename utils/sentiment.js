@@ -1,0 +1,1 @@
+const vader = require('vader-sentiment');
