@@ -1,5 +1,6 @@
 const axios = require('axios').default;
 const vader = require('vader-sentiment');
+const logging = require("./Logging");
 
 function processIncomingMessage(message, client){
     if(message.includes(client.user.id)){

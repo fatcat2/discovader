@@ -15,6 +15,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "expressjs": "^1.0.1",
+    "influx": "^5.6.3",
     "js-markov": "^3.0.3",
     "moment": "^2.26.0",
     "nodemon": "^2.0.3",
