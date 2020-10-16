@@ -109,4 +109,26 @@ app.get('/daily', (req, res) => {
 })
 
 
+app.get('//aita', (req, res) => {
+    logging.submit_log(`AITA page requested`)
+    axios.get('http://localhost:5000/aita')
+        .then((response) => {
+            res.render("aita", {aita: response["data"]})
+        })
+        .catch((error) => {res.json(error)})
+})
+
+app.get('//daily', (req, res) => {
+    axios.get("http://hub.mph.in.gov/api/3/action/datastore_search_sql?sql=SELECT%20SUM(%22COVID_COUNT%22)%20as%20COVID_COUNT%20from%20%2246b310b9-2f29-4a51-90dc-3886d9cf4ac1%22%20WHERE%20%22COUNTY_NAME%22%20LIKE%20%27Tippecanoe%27")
+        .then((response) => {
+            daily_channel.send(`hi! as of today, there are ${response["data"]["result"]["records"][0]["covid_count"]} cases of covid 19 in tippecanoe county`);
+            res.send(`hi! as of today, there are ${response["data"]["result"]["records"][0]["covid_count"]} cases of covid 19 in tippecanoe county`)
+        })
+        .catch((error) => {res.json(error)})
+})
+
+
+
+
+
 app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
