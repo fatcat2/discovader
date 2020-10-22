@@ -1,23 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <title>Sample Site</title>
-
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<html>
+  <head>
+    <title>discovader !</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" crossorigin="anonymous"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.17.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.17.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.12.2"></script>
     <style>
-        body { padding-top:50px; }
+        img#avatar {
+            border-radius: 50%;
+            max-width: 7%;
+            height: auto;
+        }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="container">
-        <div class="jumbotron">
-            <h1>discovader!</h1>
-            <img></img>
+        <br/>
+        <div class="row">
+            <div class="col">
+                <div class="container">
+                    <h1 class="display-4">
+                        discovader
+                        <img src="https://torrtle.co/discovader/images/chuu.jpg" id="avatar" />
+                    </h1>
+                    <p class="lead">made by <a href="https://torrtle.co">torrtle</a>.</p>
+                </div>
+            </div>
         </div>
+        <div class="row">
+            <div class="col-sm-10">
+                <div class="container">
+                    <p>Discovader is a Discord bot that implements <a href="https://github.com/cjhutto/vaderSentiment">VADER sentiment analysis</a>. It scans through messages in specified channels and analyzes the sentiment of each one by returning a score between -1 and 1. Depending on the sentiment of the message, it will either respond or react to the message with a sassy or supportive reply.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
+                    <div id="punchCardChart"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
+                <div class="container">
+                    <p>The graph above shows the number of messages by day by adjusting the size of the circle, and shows the average sentiment score of the day through the color. The more orange the color is, the more negative the sentiment is.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
+                    <div id="lineChart"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
+                <p>Besides randomly replying to messages, the following commands are implemented. Message syntax should be used like "@discovader [command] [args]"</p>
+                <ul class="list-group">
+                    <li class="list-group-item">explain: explains what Discovader does</li>
+                    <li class="list-group-item">stonks [symbol]: returns stock price for that symbol</li>
+                    <li class="list-group-item">[message]: returns the full VADER sentiment analysis for the text sentiment</li>
+                    <li class="list-group-item">average: returns the running total average sentiment kept in the database</li>
+                    <li class="list-group-item">average_day: returns the average sentiment by day</li>
+                </ul>
+                <p><i>Note: some of these commands require data to be stored. The only data being stored are timestamps and sentiment. No information regarding which user sent a message is kept.</i></p>                                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
+                <p>Discovader in action:</p>
+                <img src="https://torrtle.co/discovader/images/guwun.jpg">
+            </div>
+        </div>
+        <br/>
+        
     </div>
+    
+    <style>
+        #punchCardChart {
+            margin: auto;
+            width: 100%;
+        }
+        #lineChart {
+            margin: auto;
+            width: 100%;
+        }
+    </style>
+    <script type="text/javascript">
+      var punchCardChart = {
+        "title": "discovader score and message count per day",
+        "width": "container",
+        $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+        description: 'A simple bar chart with embedded data.',
+        data: { "url": "https://torrtle.co/discovader/datadump"},
+        mark: {type: 'circle', "tooltip": true},
+        encoding: {
+          x: {field: 'day', type: 'ordinal'},
+          y: {field: 'month', type: 'ordinal'},
+          size: {field: "count", type: "quantitative"},
+          "color": {
+                "field": "score",
+                "type": "quantitative",
+                "scale": {
+                    "domainMid": 0,
+                    "range": "diverging",
+                }
+            }
+        }
+      };
 
-</body>
+      var lineChart = {
+        "title": "discovader score per day",
+        "width": "container",
+        $schema: 'https://vega.github.io/schema/vega-lite/v4.json',
+        description: 'A simple bar chart with embedded data.',
+        data: { "url": "https://torrtle.co/discovader/datadump"},
+        "mark": {type: 'line', "tooltip": true},
+        "encoding": {
+            "x": {"field": "date", "type": "temporal"},
+            "y": {"field": "score", "type": "quantitative"}
+        }
+      };
+
+      vegaEmbed('#punchCardChart', punchCardChart);
+      vegaEmbed('#lineChart', lineChart);
+    </script>
+  </body>
 </html>

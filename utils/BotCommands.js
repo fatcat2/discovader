@@ -10,7 +10,7 @@ function processIncomingMessage(message, client){
 }
 
 function explain(messageChannel, client){
-    messageChannel.send(`${client.user} is a Discord bot that implements VADER sentiment analysis. It scans for negative messages as they come in and responds based on RNG and whether the message is truly negative according to its VADER compound score.\nCommands are \`explain\`, \`average\`, \`call <number>\`, \`stonks <ticker symbol>\`, and \`average_day\`.`)
+    messageChannel.send(`${client.user} is a Discord bot that implements VADER sentiment analysis. It scans for negative messages as they come in and responds based on RNG and whether the message is truly negative according to its VADER compound score.\nCommands are \`explain\`, \`average\`, \`call <number>\`, \`stonks <ticker symbol>\`, and \`average_day\`. Learn more and see statistics at https://torrtle.co/discovader`)
 }
 
 function reportVaderAnalysis(message, toAnalyze, results){

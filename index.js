@@ -80,21 +80,26 @@ app.get('/', (req, res) => {
             for(value in rows){
                 stringList.push({x: moment(rows[value].DAY).format("ll"), y: rows[value].SCORE})
             }
-            res.render('index', { average: avg_row.average , daily_average: rows, stringData: JSON.stringify(stringList)})
+            // res.render('index', { average: avg_row.average , daily_average: rows, stringData: JSON.stringify(stringList)})
+            res.sendFile(path.join(__dirname + "/index.html"))
 
         });
     });
 })
 
-app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname + '/favicon.ico'));
+app.get('//images/chuu.jpg', (req, res) => {
+    res.sendFile(path.join(__dirname + '/images/chuu.jpg'));
+})
+
+app.get('//images/guwun.jpg', (req, res) => {
+    res.sendFile(path.join(__dirname + '/images/guwun.jpg'));
 })
 
 app.get('/aita', (req, res) => {
     logging.submit_log(`AITA page requested`)
     axios.get('http://localhost:5000/aita')
         .then((response) => {
-            res.render("aita", {aita: response["data"]})
+            res.sendFile("aita", {aita: response["data"]})
         })
         .catch((error) => {res.json(error)})
 })
@@ -128,7 +133,19 @@ app.get('//daily', (req, res) => {
 })
 
 
+app.get('//datadump', (req, res) => {
+	db.get("SELECT AVG(score) as average FROM discovader", function(err, avg_row){
+        db.all(`select strftime('%Y-%m-%d', timestamp) as DAY, avg(score) as SCORE, count(score) as COUNT from discovader group by strftime('%Y-%m-%d', timestamp) order by DAY`, function(err, rows){
+            let stringList = [];
+            for(value in rows){
+                momentDate = moment(rows[value].DAY)
+                stringList.push({date: momentDate.format("ll"), month: parseInt(momentDate.format("MM")), day: parseInt(momentDate.format("DD")), score: rows[value].SCORE, count: rows[value].COUNT})
+            }
+            res.json(stringList)
 
+        });
+    });
+})
 
 
 app.listen(port, () => console.log(`Discovader is now listening on port ${port}!`))
