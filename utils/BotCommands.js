@@ -25,6 +25,10 @@ function processReply(message, chance, compoundScore, db){
         db.run(`INSERT INTO discovader VALUES (datetime('now'), ?)`, compoundScore);
     });
 
+    if(message.content.toLowerCase().match(/inoo+/)){
+        message.react("784452368611147776")
+    }
+
     if(chance > 0.9 && compoundScore <= -0.05){
         if(chance > 0.975){
             message.channel.send(`That's right onii-chan! ${message.member.user}`);            
